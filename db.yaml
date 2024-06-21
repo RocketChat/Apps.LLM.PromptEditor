@@ -1,0 +1,33 @@
+# Interaction with database
+
+# 1. Fetching all the LLMs models configured by Rocket.Chat Admin and its details
+
+LLM:
+  associations:
+    [
+      
+    ]
+
+# 2. Creating, Updating and 
+
+# This is a comment
+person:
+  name: John Doe
+  age: 30
+  occupation: Developer
+  skills:
+    - Python
+    - JavaScript
+    - SQL
+
+address:
+  street: 123 Main St
+  city: Anytown
+  state: NY
+  zip: 12345
+
+contacts:
+  - type: email
+    address: john.doe@example.com
+  - type: phone
+    number: 123-456-7890

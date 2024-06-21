@@ -1,0 +1,54 @@
+# Ignore node_modules directory
+node_modules/
+
+# Ignore log files
+*.log
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore build output
+dist/
+build/
+
+# Ignore dependency directories
+vendor/
+public/
+
+# Ignore IDE specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignore environment variables files
+.env
+.env.local
+.env.*.local
+
+# Ignore Python specific files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Ignore Java specific files
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Ignore macOS Finder metadata
+.DS_Store
+
+# Ignore Linux file system metadata
+*~
+
+# Ignore Windows file system metadata
+Thumbs.db
+ehthumbs.db
+
+package-lock.json
