@@ -89,7 +89,8 @@ export class LLMPromptApp extends App {
                 new GetAllLLMEndpoint(this),
                 new ConversateEndpoint(this),
                 new FetchAllConversations(this),
-                new FetchConversationWithID(this)
+                new FetchConversationWithID(this),
+                new ChatEndPoint(this),
             ],
         });
 
@@ -99,7 +100,27 @@ export class LLMPromptApp extends App {
 }
 
 export class TestEndPoint extends ApiEndpoint {
-    public path = `prompt-editor`;
+    public path = `prompt-editor/chat`;
+    public async get(request: IApiRequest,
+        endpoint: IApiEndpointInfo,
+        read: IRead,
+        modify: IModify,
+        http: IHttp,
+        persis: IPersistence): Promise<IApiResponse> {
+        return {
+            status: 200,
+            headers: {
+                "Content-Type": "text/html",
+                "Content-Security-Policy":
+                    "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'",
+            },
+            content:BaseContent,
+        };
+    }
+}
+
+export class ChatEndPoint extends ApiEndpoint {
+    public path = `chat`;
     public async get(request: IApiRequest,
         endpoint: IApiEndpointInfo,
         read: IRead,
