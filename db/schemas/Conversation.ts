@@ -1,11 +1,9 @@
 export type IConversation = {
     creator : string;
-    model : string; // llmModel Id
-    messages : IMessage[]
+    messages : IMessageLLM[]
 }
 
-export type IMessage = {
-    messageId : string;
+export type IMessageLLM = {
     message : string;
     sentBy : string;
 }
