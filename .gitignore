@@ -1,54 +1,28 @@
-# Ignore node_modules directory
+# ignore modules pulled in from npm
 node_modules/
 
-# Ignore log files
-*.log
-
-# Ignore OS generated files
-.DS_Store
-Thumbs.db
-
-# Ignore build output
+# rc-apps package output
 dist/
-build/
 
-# Ignore dependency directories
-vendor/
-public/
-
-# Ignore IDE specific files
-.vscode/
+# JetBrains IDEs
+out/
 .idea/
-*.sublime-project
-*.sublime-workspace
+.idea_modules/
 
-# Ignore environment variables files
-.env
-.env.local
-.env.*.local
-
-# Ignore Python specific files
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-
-# Ignore Java specific files
-target/
-*.class
-*.jar
-*.war
-*.ear
-
-# Ignore macOS Finder metadata
+# macOS
 .DS_Store
-
-# Ignore Linux file system metadata
-*~
-
-# Ignore Windows file system metadata
-Thumbs.db
-ehthumbs.db
-
-package-lock.json
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk

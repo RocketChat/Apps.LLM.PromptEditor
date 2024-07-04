@@ -1,5 +1,5 @@
 import {IConversation} from "./Conversation"
 
 export type IUserLLM = {
-    conversations : IConversation[]
+    conversations : string[]
 }

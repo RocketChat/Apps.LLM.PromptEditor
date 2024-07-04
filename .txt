@@ -1,0 +1,9 @@
+Send Message
+
+Use Case : 
+
+1. when user will write a message and press send button to interact with LLM.
+
+Technical Overview : 
+
+1. 
