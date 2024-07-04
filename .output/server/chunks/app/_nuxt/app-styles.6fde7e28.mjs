@@ -1,6 +1,0 @@
-const app_vue_vue_type_style_index_0_lang = "\nbody {\n    transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms;\n    /* background-color: #f9fafb; */\n    -webkit-tap-highlight-color: transparent;\n    -webkit-touch-callout: none !important;\n    -webkit-font-smoothing: antialiased;\n    -moz-osx-font-smoothing: grayscale;\n    margin: 0;\n}.dark body{--un-bg-opacity:1;background-color:rgba(34,34,34,var(--un-bg-opacity));}.light body{--un-bg-opacity:1;background-color:rgba(250,250,251,var(--un-bg-opacity));}\n\n/** Dark mode scrollbar */\nhtml.dark ::-webkit-scrollbar {\n        height: 8px;\n        width: 8px;\n}\nhtml.dark ::-webkit-scrollbar-thumb {\n        background: hsla(0,0%,100%,.2);\n        border-radius: 4px;\n}\nhtml.dark ::-webkit-scrollbar-thumb:hover {\n        background: hsla(0,0%,100%,.4);\n}\nhtml.dark ::-webkit-scrollbar-track {\n        background: hsla(0,0%,100%,.1);\n        border-radius: 4px;\n}\n";
-
-const appStyles_6fde7e28 = [app_vue_vue_type_style_index_0_lang];
-
-export { appStyles_6fde7e28 as default };
-//# sourceMappingURL=app-styles.6fde7e28.mjs.map

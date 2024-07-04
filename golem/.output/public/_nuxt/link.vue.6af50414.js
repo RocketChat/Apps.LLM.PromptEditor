@@ -1,1 +1,0 @@
-import{a as r,b as t,B as n,o as a}from"./entry.381c0f38.js";const s=["href"],l=r({__name:"link",props:{to:null},setup(e){return(o,i)=>(a(),t("a",{href:e.to,"text-gray-6":"","dark:text-gray-2":"","cursor-pointer":"","decoration-none":"","b-0":"","b-b-2":"","b-solid":"","b-primary":"","hover:op-80":"",transition:""},[n(o.$slots,"default")],8,s))}});export{l as _};
