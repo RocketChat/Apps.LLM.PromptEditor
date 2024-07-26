@@ -40,7 +40,7 @@ import {
     IApiResponse,
 } from "@rocket.chat/apps-engine/definition/api";
 import {addNewConversationToUser, addNewMessageToConversation, BaseContent, checkOrCreateUser, conversateWithLLM, createNewConversation, generateUUID, getConversationWithID} from "./helpers"
-import {compressedString} from "./bundle"
+import {EntriJScompressedString, PagePayloadCompressedString} from "./bundle"
 import { Buffer } from "buffer";
 import {MISTRAL, LLAMA} from "./contants"
 import {IConversation, IMessageLLM} from "./db/schemas/Conversation"
@@ -84,13 +84,13 @@ export class LLMPromptApp extends App {
             visibility: ApiVisibility.PUBLIC,
             security: ApiSecurity.UNSECURE,
             endpoints: [
-                new TestEndPoint(this),
-                new BundleJsEndpoint(this),
+                new BaseChatEndpoint(this),
+                new EntryNuxtJSEndpoint(this),
+                new PagePayloadEndpoint(this),
                 new GetAllLLMEndpoint(this),
                 new ConversateEndpoint(this),
                 new FetchAllConversations(this),
                 new FetchConversationWithID(this),
-                new ChatEndPoint(this),
             ],
         });
 
@@ -99,7 +99,7 @@ export class LLMPromptApp extends App {
     }
 }
 
-export class TestEndPoint extends ApiEndpoint {
+export class BaseChatEndpoint extends ApiEndpoint {
     public path = `prompt-editor/chat`;
     public async get(request: IApiRequest,
         endpoint: IApiEndpointInfo,
@@ -119,29 +119,8 @@ export class TestEndPoint extends ApiEndpoint {
     }
 }
 
-export class ChatEndPoint extends ApiEndpoint {
-    public path = `chat`;
-    public async get(request: IApiRequest,
-        endpoint: IApiEndpointInfo,
-        read: IRead,
-        modify: IModify,
-        http: IHttp,
-        persis: IPersistence): Promise<IApiResponse> {
-        return {
-            status: 200,
-            headers: {
-                "Content-Type": "text/html",
-                "Content-Security-Policy":
-                    "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'",
-            },
-            content:BaseContent,
-        };
-    }
-}
-
-export class BundleJsEndpoint extends ApiEndpoint {
-    public path = "bundle.js";
-
+export class EntryNuxtJSEndpoint extends ApiEndpoint {
+    public path = `_nuxt/entryLLM.js`;
     public async get(
         request: IApiRequest,
         endpoint: IApiEndpointInfo,
@@ -150,7 +129,29 @@ export class BundleJsEndpoint extends ApiEndpoint {
         http: IHttp,
         persis: IPersistence
     ): Promise<IApiResponse> {
-        const content = Buffer.from(compressedString, "base64");
+        const content = Buffer.from(EntriJScompressedString, "base64");
+        return {
+            status: 200,
+            headers: {
+                "Content-Type": "text/javascript",
+                "Content-Encoding": "br",
+            },
+            content 
+        };
+    }
+}
+
+export class PagePayloadEndpoint extends ApiEndpoint {
+    public path = `prompt-editor/chat/_payload.js`;
+    public async get(
+        request: IApiRequest,
+        endpoint: IApiEndpointInfo,
+        read: IRead,
+        modify: IModify,
+        http: IHttp,
+        persis: IPersistence
+    ): Promise<IApiResponse> {
+        const content = Buffer.from(PagePayloadCompressedString, "base64");
         return {
             status: 200,
             headers: {
