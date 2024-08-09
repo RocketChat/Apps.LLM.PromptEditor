@@ -18,6 +18,7 @@ import { PlainText, ButtonElement, Block } from "@rocket.chat/ui-kit";
 import { IUser } from "@rocket.chat/apps-engine/definition/users";
 import { IUserLLM } from "./db/schemas/User";
 import { IConversation, IMessageLLM } from "./db/schemas/Conversation";
+import {request} from "http"
 
 export const BaseContent=`<!DOCTYPE html>
 <html lang="en">
@@ -264,31 +265,136 @@ export const checkOrCreateUser = async(read: IRead, persistence: IPersistence, u
   return
 }
 
+const processingData: any = {
+  "test": {
+    startedStreaming: false,
+    endedStreaming: false,
+    chunks: []
+  },
+}
 
-export const conversateWithLLM = async(http: IHttp, message: string): Promise<string> => {
-  const {data : response} = await http.post('https://jusbills-gpt4-vision.openai.azure.com/openai/deployments/jusbills-gpt4-vision/chat/completions?api-version=2024-02-15-preview', {
-    data: {
-        "messages": [
-          {
-            "role": "system",
-            "content": [
-              {
-                "type": "text",
-                "text": message
-              }
-            ]
-          }
-        ],
-        "temperature": 0.7,
-        "top_p": 0.95,
-        "max_tokens": 800
+const exportData = async(http, content) => {
+  await http.post("https://d0ef-2401-4900-8816-c6a7-850d-9c30-dece-c335.ngrok-free.app/post", {
+    data: { content: content }
+  });
+}
+
+const startChat = async(read, http, message, userId) => {
+
+  const postData = JSON.stringify({
+    model: "./dist/Llama-2-7b-chat-hf-q4f16_1-MLC/",
+    stream: true,
+    messages: [
+        {
+            role: "user",
+            content: "Write a 2 line sentence about rain",
+        },
+    ],
+});
+
+
+  const options = {
+      hostname: "llama3-8b",
+      port: 80,
+      path: "/v1/chat/completions",
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(postData),
       },
-    headers: {
-        'api-key': `b95b3975e68640e9b57161e5098d856c`,
-        'Content-Type': 'application/json'
-    }
-    });
-    const reply = response.choices[0].message.content as string
+  };
 
-    return reply
+  const req = request(options, async (res) => {
+    let buffer = "";
+    
+    res.on("data", async (chunk) => {
+      buffer += chunk.toString();
+
+      await exportData(http, JSON.stringify(processingData[userId].chunks)) 
+  
+      let boundary = buffer.indexOf("\n");
+      while (boundary !== -1) {
+        const chunkStr = buffer.slice(0, boundary).trim();
+        buffer = buffer.slice(boundary + 1);
+  
+        if (chunkStr.startsWith("data:") && chunkStr.includes("choices")) {
+          const jsonStr = chunkStr.slice(5).trim();
+          try {
+            const parsedChunk = JSON.parse(jsonStr);
+            const content = parsedChunk.choices[0].delta.content || "";
+            processingData[userId].chunks.push(content);
+            await exportData(http, content)
+
+            const user = await read.getUserReader().getById(userId);
+            if (user) {
+              read.getNotifier().notifyUser(user, content);
+            }
+
+            process.stdout.write(content);
+          } catch (e) {
+            console.error("Error parsing chunk:", e);
+          }
+        }
+  
+        if (chunkStr.includes("[DONE]")) {
+          res.destroy();
+          break;
+        }
+  
+        boundary = buffer.indexOf("\n");
+      }
+    });
+  
+    res.on("end", async () => {
+        await exportData(http, "ended")
+        processingData[userId].startedStreaming = false;
+        processingData[userId].endedStreaming = true;
+    });
+});
+
+req.write(postData);
+req.end();
+
+}
+
+export const conversateWithLLM = async (http: IHttp, message: string, userId: string, read: IRead): Promise<string> => {
+
+  let responseMessage = ""
+
+  try {
+    if(!processingData[userId]) {
+      processingData[userId] = {
+        startedStreaming: false,
+        endedStreaming: false,
+        chunks: []
+      }
+    }
+
+    if(processingData[userId].endedStreaming ){
+      responseMessage = processingData[userId].chunks.join("\n") + "%ended%"
+      processingData[userId].startedStreaming = false;
+      processingData[userId].endedStreaming = false;
+      processingData[userId].chunks = []
+      return responseMessage
+    }
+
+    if(!processingData[userId].startedStreaming) {
+      processingData[userId].startedStreaming = true;
+      startChat(read, http, message, userId)  
+  }
+
+  } catch (error) {
+    processingData[userId].startedStreaming = false;
+    processingData[userId].endedStreaming = true;
+    processingData[userId].chunks.push(JSON.stringify(error));
+  }
+
+  if(processingData[userId].startedStreaming) {
+    responseMessage = processingData[userId].chunks.join("\n");
+    processingData[userId].chunks = []
+    await exportData(http, responseMessage)
+    return responseMessage
+  }
+
+  return responseMessage
 }

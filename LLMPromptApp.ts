@@ -164,7 +164,7 @@ export class PagePayloadEndpoint extends ApiEndpoint {
 }
 
 export class ConversateEndpoint extends ApiEndpoint {
-    public path = "conversate";
+    public path = "/conversate";
 
     public async post(
         request: IApiRequest,
@@ -195,9 +195,9 @@ export class ConversateEndpoint extends ApiEndpoint {
             await checkOrCreateUser(read, persis, request.user.id)
 
             if (!conversationId) {
+                const reply = await conversateWithLLM(http, message, request.user.id, read)
                 const convID = await createNewConversation(persis, request.user.id)
                 await addNewConversationToUser(read, persis, request.user.id, convID)
-                const reply = await conversateWithLLM(http, message)
                 // save to persistence storage
                 let messages : IMessageLLM[] = [
                     {
@@ -227,7 +227,7 @@ export class ConversateEndpoint extends ApiEndpoint {
                 }
             }
             else {
-                const reply =  await conversateWithLLM(http, message)
+                const reply =  await conversateWithLLM(http, message, request.user.id, read)
                 let messages : IMessageLLM[] = [
                     {
                         sentBy: "system",
