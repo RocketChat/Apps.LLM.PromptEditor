@@ -287,7 +287,7 @@ const startChat = async(read, http, message, userId) => {
     messages: [
         {
             role: "user",
-            content: "Write a 2 line sentence about rain",
+            content: "Write a 10 line sentence about rain",
         },
     ],
 });
