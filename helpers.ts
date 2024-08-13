@@ -268,7 +268,6 @@ export const checkOrCreateUser = async(read: IRead, persistence: IPersistence, u
 const processingData: any = {
   "test": {
     startedStreaming: false,
-    endedStreaming: false,
     chunks: []
   },
 }
@@ -279,7 +278,7 @@ const exportData = async(http, content) => {
   });
 }
 
-const startChat = async(read, http, message, userId) => {
+const startChat = async(read, http, message, convId) => {
 
   const postData = JSON.stringify({
     model: "./dist/Llama-2-7b-chat-hf-q4f16_1-MLC/",
@@ -308,13 +307,7 @@ const startChat = async(read, http, message, userId) => {
     let buffer = "";
     
     res.on("data", async (chunk) => {
-      buffer += chunk.toString();
-
-
-      await exportData(http, JSON.stringify(processingData[userId].chunks)) 
-  
-  
-      await exportData(http, JSON.stringify(processingData[userId].chunks)) 
+      buffer += chunk.toString()
   
       let boundary = buffer.indexOf("\n");
       while (boundary !== -1) {
@@ -326,21 +319,17 @@ const startChat = async(read, http, message, userId) => {
           try {
             const parsedChunk = JSON.parse(jsonStr);
             const content = parsedChunk.choices[0].delta.content || "";
-            processingData[userId].chunks.push(content);
+            await exportData(http, content)
+            processingData[convId].chunks.push(content);
 
-            const user = await read.getUserReader().getById(userId);
-            if (user) {
-              read.getNotifier().notifyUser(user, content);
-            }
-
-            process.stdout.write(content);
           } catch (e) {
             console.error("Error parsing chunk:", e);
           }
         }
-  
         if (chunkStr.includes("[DONE]")) {
           res.destroy();
+          processingData[convId].chunks.push("%ended%");
+          processingData[convId].startedStreaming = false;
           break;
         }
   
@@ -349,9 +338,8 @@ const startChat = async(read, http, message, userId) => {
     });
   
     res.on("end", async () => {
-        await exportData(http, "ended")
-        processingData[userId].startedStreaming = false;
-        processingData[userId].endedStreaming = true;
+        processingData[convId].startedStreaming = false;
+        await exportData(http, "%ended%")
     });
 });
 
@@ -360,44 +348,41 @@ req.end();
 
 }
 
-export const conversateWithLLM = async (http: IHttp, message: string, userId: string, read: IRead): Promise<string> => {
+const splitChunks = (convId) => {
+  const current = processingData[convId].chunks.join(" ")
+  processingData[convId].chunks = []
 
-  let responseMessage = ""
+  return current
+}
+
+export const conversateWithLLM = async (http: IHttp, message: string, convId: string, read: IRead): Promise<string> => {
 
   try {
-    if(!processingData[userId]) {
-      processingData[userId] = {
+    if(!processingData[convId]) {
+      processingData[convId] = {
         startedStreaming: false,
-        endedStreaming: false,
         chunks: []
       }
     }
 
-    if(processingData[userId].endedStreaming ){
-      responseMessage = processingData[userId].chunks.join("\n") + "%ended%"
-      processingData[userId].startedStreaming = false;
-      processingData[userId].endedStreaming = false;
-      processingData[userId].chunks = []
-      return responseMessage
-    }
-
-    if(!processingData[userId].startedStreaming) {
-      processingData[userId].startedStreaming = true;
-      startChat(read, http, message, userId)  
+    if(!processingData[convId].startedStreaming) {
+      if(processingData[convId].chunks.length) {
+        processingData[convId].chunks.push("%ended%")
+        return splitChunks(convId)
+      }
+      processingData[convId].startedStreaming = true;
+      startChat(read, http, message, convId)
+      return ""
   }
 
-  } catch (error) {
-    processingData[userId].startedStreaming = false;
-    processingData[userId].endedStreaming = true;
-    processingData[userId].chunks.push(JSON.stringify(error));
+  if(processingData[convId].startedStreaming) {
+    return splitChunks(convId)
   }
+} catch(error) {
+  processingData[convId].chunks.push("%ended%")
+  processingData[convId].startedStreaming = false;
+  return splitChunks(convId)
+}
 
-  if(processingData[userId].startedStreaming) {
-    responseMessage = processingData[userId].chunks.join("\n");
-    processingData[userId].chunks = []
-    await exportData(http, responseMessage)
-    return responseMessage
-  }
-
-  return responseMessage
+return ""
 }

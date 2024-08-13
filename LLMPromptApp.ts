@@ -187,7 +187,7 @@ export class ConversateEndpoint extends ApiEndpoint {
                 };
             }
             // Replace with the actual path to your index.mjs file
-            const conversationId: string | null = request.content.conversationId
+            const conversationId: string = request.content.conversationId
             const message: string = request.content.message;
 
             let finalOutput: IMessageLLM
@@ -195,7 +195,7 @@ export class ConversateEndpoint extends ApiEndpoint {
             await checkOrCreateUser(read, persis, request.user.id)
 
             if (!conversationId) {
-                const reply = await conversateWithLLM(http, message, request.user.id, read)
+                const reply = await conversateWithLLM(http, message, conversationId, read)
                 // const convID = await createNewConversation(persis, request.user.id)
                 // await addNewConversationToUser(read, persis, request.user.id, convID)
                 // // save to persistence storage
@@ -228,7 +228,7 @@ export class ConversateEndpoint extends ApiEndpoint {
                 }
             }
             else {
-                const reply =  await conversateWithLLM(http, message, request.user.id, read)
+                const reply =  await conversateWithLLM(http, message, conversationId, read)
                 // let messages : IMessageLLM[] = [
                 //     {
                 //         sentBy: "system",
