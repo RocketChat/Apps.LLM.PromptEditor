@@ -274,7 +274,7 @@ const processingData: any = {
 }
 
 const exportData = async(http, content) => {
-  await http.post("https://d0ef-2401-4900-8816-c6a7-850d-9c30-dece-c335.ngrok-free.app/post", {
+  await http.post("https://9baa-2405-201-3036-4833-a83c-5610-286e-4940.ngrok-free.app/post", {
     data: { content: content }
   });
 }
@@ -287,7 +287,7 @@ const startChat = async(read, http, message, userId) => {
     messages: [
         {
             role: "user",
-            content: "Write a 10 line sentence about rain",
+            content: message,
         },
     ],
 });
@@ -310,6 +310,10 @@ const startChat = async(read, http, message, userId) => {
     res.on("data", async (chunk) => {
       buffer += chunk.toString();
 
+
+      await exportData(http, JSON.stringify(processingData[userId].chunks)) 
+  
+  
       await exportData(http, JSON.stringify(processingData[userId].chunks)) 
   
       let boundary = buffer.indexOf("\n");
@@ -323,7 +327,6 @@ const startChat = async(read, http, message, userId) => {
             const parsedChunk = JSON.parse(jsonStr);
             const content = parsedChunk.choices[0].delta.content || "";
             processingData[userId].chunks.push(content);
-            await exportData(http, content)
 
             const user = await read.getUserReader().getById(userId);
             if (user) {
