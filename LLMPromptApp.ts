@@ -196,21 +196,21 @@ export class ConversateEndpoint extends ApiEndpoint {
 
             if (!conversationId) {
                 const reply = await conversateWithLLM(http, message, request.user.id, read)
-                const convID = await createNewConversation(persis, request.user.id)
-                await addNewConversationToUser(read, persis, request.user.id, convID)
-                // save to persistence storage
-                let messages : IMessageLLM[] = [
-                    {
-                        sentBy: "system",
-                        message
-                    },
-                    {
-                        sentBy: "assistant",
-                        message: reply
-                    }
-                ]
+                // const convID = await createNewConversation(persis, request.user.id)
+                // await addNewConversationToUser(read, persis, request.user.id, convID)
+                // // save to persistence storage
+                // let messages : IMessageLLM[] = [
+                //     {
+                //         sentBy: "system",
+                //         message
+                //     },
+                //     {
+                //         sentBy: "assistant",
+                //         message: reply
+                //     }
+                // ]
 
-                await addNewMessageToConversation(read, persis, request.user.id, convID, messages)
+                // await addNewMessageToConversation(read, persis, request.user.id, convID, messages)
 
                 return {
                     status: 200,
@@ -222,24 +222,25 @@ export class ConversateEndpoint extends ApiEndpoint {
                     content: {
                         sentBy: "assistant",
                         message: reply,
-                        conversationId: convID
+                        conversationId: conversationId,
+                        fromMsg : message
                     },
                 }
             }
             else {
                 const reply =  await conversateWithLLM(http, message, request.user.id, read)
-                let messages : IMessageLLM[] = [
-                    {
-                        sentBy: "system",
-                        message
-                    },
-                    {
-                        sentBy: "assistant",
-                        message: reply
-                    }
-                ]
+                // let messages : IMessageLLM[] = [
+                //     {
+                //         sentBy: "system",
+                //         message
+                //     },
+                //     {
+                //         sentBy: "assistant",
+                //         message: reply
+                //     }
+                // ]
 
-                await addNewMessageToConversation(read, persis, request.user.id, conversationId, messages)
+                // await addNewMessageToConversation(read, persis, request.user.id, conversationId, messages)
                 return {
                     status: 200,
                     headers: {
@@ -250,7 +251,8 @@ export class ConversateEndpoint extends ApiEndpoint {
                     content: {
                         sentBy: "assistant",
                         message: reply,
-                        conversationId: conversationId
+                        conversationId: conversationId,
+                        fromMsg : message
                     },
                 }
             }
