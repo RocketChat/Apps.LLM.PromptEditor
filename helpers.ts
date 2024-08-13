@@ -272,11 +272,6 @@ const processingData: any = {
   },
 }
 
-const exportData = async(http, content) => {
-  await http.post("https://9baa-2405-201-3036-4833-a83c-5610-286e-4940.ngrok-free.app/post", {
-    data: { content: content }
-  });
-}
 
 const startChat = async(read, http, message, convId) => {
 
@@ -303,6 +298,17 @@ const startChat = async(read, http, message, convId) => {
       },
   };
 
+//   const options = {
+//     hostname: "localhost",
+//     port: 11434,
+//     path: "/v1/chat/completions",
+//     method: "POST",
+//     headers: {
+//         "Content-Type": "application/json",
+//         "Content-Length": Buffer.byteLength(postData),
+//     },
+// };
+
   const req = request(options, async (res) => {
     let buffer = "";
     
@@ -319,7 +325,7 @@ const startChat = async(read, http, message, convId) => {
           try {
             const parsedChunk = JSON.parse(jsonStr);
             const content = parsedChunk.choices[0].delta.content || "";
-            await exportData(http, content)
+            console.log('content', content)
             processingData[convId].chunks.push(content);
 
           } catch (e) {
@@ -339,7 +345,6 @@ const startChat = async(read, http, message, convId) => {
   
     res.on("end", async () => {
         processingData[convId].startedStreaming = false;
-        await exportData(http, "%ended%")
     });
 });
 
