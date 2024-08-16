@@ -354,7 +354,7 @@ req.end();
 }
 
 const splitChunks = (convId) => {
-  const current = processingData[convId].chunks.join(" ")
+  const current = processingData[convId].chunks.join("")
   processingData[convId].chunks = []
 
   return current
