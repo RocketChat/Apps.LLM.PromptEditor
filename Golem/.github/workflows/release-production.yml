@@ -1,0 +1,125 @@
+name: Deploy production environment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-release:
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Token
+        id: auth
+        uses: peter-murray/workflow-application-token-action@e8782d687a306fb13d733244d0f2a50e272d3752 # pin@v1
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # pin@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ steps.script.outputs.ref }}
+          repository: ${{ steps.script.outputs.repo }}
+
+      - uses: clicampo/action-publish-semver-release@v1
+        id: release
+        with:
+          github-token: ${{ steps.auth.outputs.token }}
+          git-committer-name: Release bot
+          git-committer-email: release@bot.com
+          release-candidate: false
+          # slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          # project-url: ${{ github.server_url }}/${{ github.repository }}
+          # production-action-url: ${{ github.server_url }}/${{ github.repository }}/actions/workflows/release-production.yml
+
+      - name: Create release artifacts
+        # Create a artifact with the release version, the name is the commit hash
+        run: |
+          mkdir -p artifacts
+          echo "${{ steps.release.outputs.next-version }}" > artifacts/${{ github.sha }}.txt
+      
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: release-artifacts
+          path: artifacts
+  
+  publish-to-vercel:
+    name: Push application to Vercel
+    runs-on: ubuntu-latest
+    needs: create-release
+    steps:
+      - name: Get Token
+        id: auth
+        uses: peter-murray/workflow-application-token-action@e8782d687a306fb13d733244d0f2a50e272d3752 # pin@v1
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # pin@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Deploy to Vercel
+        id: deploy
+        uses: BetaHuhn/deploy-to-vercel-action@v1 # pin@ffcc89a6d79de43d964945ce053395c2958610b1
+        env:
+          DOMAIN: app.golem.chat
+        with:
+          GITHUB_TOKEN: ${{ steps.auth.outputs.token }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_SCOPE: ${{ secrets.VERCEL_ORG_ID }}
+          PR_PREVIEW_DOMAIN: ${{ env.DOMAIN }}
+          PRODUCTION: true
+          ALIAS_DOMAINS: |
+            ${{ env.DOMAIN }}
+          BUILD_ENV: |
+            REDIRECT_URL=${{ env.DOMAIN }}
+            APP_VERSION=${{ steps.script.outputs.ref }}#${{ steps.script.outputs.pr-number }}
+
+      
+  publish-to-deta-space:
+    name: Push application to Deta Space
+    runs-on: ubuntu-latest
+    needs: create-release
+    steps:
+      - name: Get Token
+        id: auth
+        uses: peter-murray/workflow-application-token-action@e8782d687a306fb13d733244d0f2a50e272d3752 # pin@v1
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # pin@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Get release artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: release-artifacts
+          path: artifacts
+      
+      - name: Read release version # and set as a output
+        id: release
+        run: |
+          echo "::set-output name=release-version::$(cat artifacts/${{ github.sha }}.txt)"
+
+      - name: Deta Space Deployment
+        uses: henrycunh/space-deployment-github-action@05e4e73d6801abed32a3580c8e794ea790fab827
+        with:
+          access_token: ${{ secrets.DETA_ACCESS_TOKEN }}
+          project_id: ${{ secrets.DETA_PROJECT_ID }}
+          release_version: ${{ steps.release.outputs.release-version }}
+          use_experimental_build_pipeline: true
+          space_push: true
+          list_on_discovery: true
+          space_release: true
+
+      
+  
