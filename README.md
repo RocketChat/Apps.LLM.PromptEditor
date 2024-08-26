@@ -1,4 +1,4 @@
-# [LLM Prompt Editor App](https://github.com/RocketChat/Apps.Emoji.Embellisher) for [Rocket.Chat](https://rocket.chat/)
+# [LLM Prompt Editor App](https://github.com/RocketChat/Apps.LLM.PromptEditor) for [Rocket.Chat](https://rocket.chat/)
 
 # Project Overview and Goals
 ## Overview
