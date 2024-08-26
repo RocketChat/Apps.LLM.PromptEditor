@@ -45,6 +45,104 @@ Demonstration of how chat history is saved in MongoDB and how it can be retrieve
 #### 4. Using App Commands
 Explanation of how to use the custom Rocket.Chat app commands to interact with the LLM Prompt Editor.
 
+
+## Local Setup Guide
+
+#### Make sure you have a working Rocket.Chat server and Apps-Engine CLI for your machine. You can setup the server for your local machine from [here](https://developer.rocket.chat/open-source-projects/server/server-environment-setup) and CLI from [here](https://developer.rocket.chat/apps-engine/getting-started/rocket.chat-app-engine-cli).
+
+1. Navigate to the `client` folder:
+
+   ```bash
+   cd Golem
+   ```
+
+2. Install all required packages:
+
+   ```bash
+   pnpm install
+   ```
+
+3. Build the webpack bundle for the Excalidraw React app:
+
+   ```bash
+   pnpm run generate
+   ```
+
+4. Execute the build.js script to generate build scripts for `bundle.ts`
+
+   ```bash
+   npm run build:golem
+   ```
+
+5. Change directory to `LLM App` and install all Rocket chat app packages :
+   ```bash
+   cd ../LLM App/
+   ```
+   ```bash
+   npm install
+   ```
+6. Deploy your app locally
+
+   ```bash
+   rc-apps deploy --url http://localhost:3000 --username ${username} --password ${password}
+   ```
+
+   Your username and password are your local server's user credentials .Verify the successful build by accessing the `/excalidraw` endpoint in the Whiteboard app settings. You can access the React app through the provided URL.
+
+### Instead of running the above commands, you can simply use the shortcut commands
+
+1. #### You can use the Makefile to run the server as well
+
+   ```bash
+   make YOUR_USERNAME=${username} YOUR_PASSWORD=${password}
+   ```
+
+   Make sure to replace ${username} and ${password} with the actual username and password values of your local server's user credentials. Alternatively, you can modify the Makefile directly by replacing the USERNAME and PASSWORD variables.
+
+   #### Additional Commands:
+
+   For build:
+
+   ```bash
+   make build YOUR_USERNAME=${username} YOUR_PASSWORD=${password}
+   ```
+
+   For deploy:
+
+   ```bash
+   make deploy YOUR_USERNAME=${username} YOUR_PASSWORD=${password}
+   ```
+
+## Gitpod Setup Guide
+
+Follow these steps to set up your development environment using Gitpod:
+
+1. **Visit Gitpod Website:**
+
+   - Go to [Gitpod](https://www.gitpod.io/) and click on the dashboard.
+
+2. **Login with GitHub:**
+
+   - Login to Gitpod using your GitHub account credentials.
+
+3. **Create a New Workspace:**
+
+   - Click on the "New Workspace" button.
+   - In the dropdown menu, select the repository you want to work on, specifically the `Apps.LLM.PromptEditor` repository that you've previously forked on GitHub.
+
+4. **Continue and Wait:**
+
+   - Click "Continue" and give it some time to initialize your workspace.
+
+5. **Start Coding:**
+   - After a few seconds, you'll see a fully-functional code editor in your browser.
+   - Feel free to start coding, making changes, and contribute to the `Apps.Whiteboard` repository.
+
+That's it! You are now set up and ready to contribute. If you encounter any issues or have questions, refer to the [Gitpod documentation](https://www.gitpod.io/docs/) or reach out to the community for assistance.
+
+Happy coding!
+
+
 ## Future Enhancements
 ### 1. Improving Hook Management
 Continued efforts to streamline the handling of hooks in Golem.
