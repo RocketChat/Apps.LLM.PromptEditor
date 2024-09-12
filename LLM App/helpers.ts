@@ -171,7 +171,8 @@ export const checkOrCreateUser = async(read: IRead, persistence: IPersistence, u
 const processingData: any = {
   "test": {
     startedStreaming: false,
-    chunks: []
+    chunks: [],
+    history: ""
   },
 }
 
@@ -184,15 +185,15 @@ const processingData: any = {
 const startChat = async(read, http, messages, msgId) => {
 
   const postData = JSON.stringify({
-    model: "./dist/Llama-2-7b-chat-hf-q4f16_1-MLC/",
+    model: "./dist/gemma-2b-it-q4f16_0-MLC",
     stream: true,
     messages
 });
 
 
   const options = {
-      hostname: "llama3-8b",
-      port: 80,
+      hostname: "localhost",
+      port: 8000,
       path: "/v1/chat/completions",
       method: "POST",
       headers: {
@@ -218,6 +219,7 @@ const startChat = async(read, http, messages, msgId) => {
             const parsedChunk = JSON.parse(jsonStr);
             const content = parsedChunk.choices[0].delta.content || "";
             // await exportData(http, content)
+            console.log('content', content);
             processingData[msgId].chunks.push(content);
 
           } catch (e) {
@@ -246,21 +248,22 @@ req.end();
 
 }
 
-const splitChunks = (msgId) => {
+const splitChunks = (msgId): Array<string> => {
   const current = processingData[msgId].chunks.join(" ")
+  processingData[msgId].history += current
   processingData[msgId].chunks = []
 
-  return current
+  return [current, processingData[msgId].history]
 }
 
-export const conversateWithLLM = async (http: IHttp, messages: Array<any>, msgId: string, read: IRead): Promise<string> => {
+export const conversateWithLLM = async (http: IHttp, messages: Array<any>, msgId: string, read: IRead): Promise<Array<string>> => {
 
   try {
-    return "Hey wssup %ended%"
     if(!processingData[msgId]) {
       processingData[msgId] = {
         startedStreaming: false,
-        chunks: []
+        chunks: [],
+        history: ""
       }
     }
 
@@ -271,18 +274,17 @@ export const conversateWithLLM = async (http: IHttp, messages: Array<any>, msgId
       }
       processingData[msgId].startedStreaming = true;
       startChat(read, http, messages, msgId)
-      return ""
+      return splitChunks(msgId)
   }
 
   if(processingData[msgId].startedStreaming) {
     return splitChunks(msgId)
   }
 } catch(error) {
-  return "Hey wssup %ended%"
   processingData[msgId].chunks.push("%ended%")
   processingData[msgId].startedStreaming = false;
   return splitChunks(msgId)
 }
 
-return ""
+return splitChunks(msgId)
 }

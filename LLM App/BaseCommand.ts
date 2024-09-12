@@ -60,7 +60,7 @@ import {
           },
           value: "create_new_chat",
           style: "primary",
-          url: "https://safe.dev.rocket.chat/api/apps/public/8d4acc61-d871-46e2-94b5-db161448483c/prompt-editor/chat"
+          url: "http://localhost:3000/api/apps/public/8d4acc61-d871-46e2-94b5-db161448483c/prompt-editor/chat"
         },
       }
 

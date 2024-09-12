@@ -4,6 +4,6 @@ export type IConversation = {
 }
 
 export type IMessageLLM = {
-    message : string;
-    sentBy : string;
+    content : string;
+    role : string;
 }
