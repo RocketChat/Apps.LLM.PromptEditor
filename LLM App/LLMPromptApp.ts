@@ -161,25 +161,30 @@ export class ConversateEndpoint extends ApiEndpoint {
             let oldMsgData : IMessageLLM[] = [
                 ...conversationData.messages,
                 {
-                    sentBy: "user",
-                    message
+                    role: "user",
+                    content: message
                 }
             ]
 
-            const reply = await conversateWithLLM(http, oldMsgData, messageId, read)
+            const [currentReply, history] = await conversateWithLLM(http, oldMsgData, messageId, read)
 
-            const newMsgData = [
-                {
-                    sentBy: "user",
-                    message
-                },
-                {
-                    sentBy: "assistant",
-                    message: reply
-                }
-            ]
+            console.log(currentReply);
+            console.log(history);
 
-            await addNewMessageToConversation(read, persis, request.user.id, conversationId, newMsgData)
+            if(currentReply.includes("%ended%")){
+                const newMsgData = [
+                    {
+                        role: "user",
+                        content: message
+                    },
+                    {
+                        role: "assistant",
+                        content: history
+                    }
+                ]
+    
+                await addNewMessageToConversation(read, persis, request.user.id, conversationId, newMsgData)
+            }
 
             return {
                 status: 200,
@@ -190,7 +195,7 @@ export class ConversateEndpoint extends ApiEndpoint {
                 },
                 content: {
                     sentBy: "assistant",
-                    message: reply,
+                    message: currentReply,
                     conversationId: conversationId,
                     fromMsg : message
                 },

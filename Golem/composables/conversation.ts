@@ -325,7 +325,7 @@ export const useConversations = () => {
         const waiting = () => new Promise((resolve, reject) => {
             setTimeout(() => {
                 resolve('ok')
-            }, 500)
+            }, 1000)
         })
 
         const upsertAssistantMessage = async (messageResponse: types.Message, finalUpdate?: boolean) => {
