@@ -68,7 +68,7 @@
     "shiki-es": "^0.2.0",
     "tinycolor2": "^1.6.0",
     "trpc-nuxt": "^0.8.0",
-    "undici": "^5.21.0",
+    "undici": "^5.28.4",
     "vite-plugin-css-injected-by-js": "^3.5.1",
     "vite-plugin-singlefile": "^2.0.2",
     "zod": "^3.21.4"
