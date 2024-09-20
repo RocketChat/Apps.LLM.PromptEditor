@@ -39,7 +39,7 @@
     "@trpc/client": "^10.18.0",
     "@trpc/server": "^10.18.0",
     "@vueuse/nuxt": "^9.13.0",
-    "axios": "^1.3.4",
+    "axios": "^1.7.4",
     "beautiful-dom": "^1.0.9",
     "chatgpt": "^5.0.10",
     "chatgpt-web": "1.0.10",
