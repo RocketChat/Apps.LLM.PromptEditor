@@ -5,14 +5,14 @@
     "iconFile": "icon.png",
     "author": {
         "name": "ashutosh",
-        "homepage": "/",
-        "support": "/support"
+        "homepage": "https://yourhomepage.com",
+        "support": "https://yoursupport.com"
     },
     "name": "LLM Prompt Editor",
     "nameSlug": "llm-prompt-editor",
     "classFile": "LLMPromptApp.ts",
-    "description": "test is good",
-    "implements": [],
+    "description": "A tool to efficiently manage and edit prompts for large language models.",
+    "implements": ["UIComponent", "PromptEditorInterface"],
     "permissions": [
         {
             "name": "ui.registerButtons"
